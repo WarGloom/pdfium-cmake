@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(pdfium)
+cmake_policy(SET CMP0140 NEW)
 
 set(PDFIUM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../pdfium" CACHE PATH "Location of pdfium source tree")
 
@@ -7,7 +8,7 @@ include(CMakeDependentOption)
 include(GNUInstallDirs)
 
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -44,6 +45,43 @@ add_definitions(-DFPDF_IMPLEMENTATION -DCOMPONENT_BUILD)
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
+function (find_sources folder )
+    file(GLOB _sources 
+    ${PDFIUM_ROOT}/${folder}/*.h
+    ${PDFIUM_ROOT}/${folder}/*.cpp
+    )
+
+    file(GLOB posix_platform_sources ${PDFIUM_ROOT}/${folder}/*posix*)
+    file(GLOB win_platform_sources ${PDFIUM_ROOT}/${folder}/*win*)
+    file(GLOB test_sources 
+#  ${PDFIUM_ROOT}/${folder}/*test*
+    ${PDFIUM_ROOT}/${folder}/*unittest*
+    ${PDFIUM_ROOT}/${folder}/test_*
+    ${PDFIUM_ROOT}/${folder}/*test.cpp
+    )
+    if (ARGC GREATER 1)
+    set (not_exclude ${ARGV1})
+    foreach(n ${not_exclude})
+        # message(FATAL_ERROR ${n})
+        list(FILTER posix_platform_sources EXCLUDE REGEX ${n})
+        list(FILTER win_platform_sources EXCLUDE REGEX ${n})
+        list(FILTER test_platform_sources EXCLUDE REGEX ${n})
+    endforeach()
+    endif()
+
+    list(REMOVE_ITEM _sources
+        ${test_sources})
+    if(WIN32)
+        list (REMOVE_ITEM _sources ${posix_platform_sources})
+    elseif(UNIX)
+        list (REMOVE_ITEM _sources ${win_platform_sources})
+    endif()
+    list(APPEND _SOURCES ${_sources})
+    return(PROPAGATE _SOURCES posix_platform_sources win_platform_sources) 
+endfunction()
+
+
 
 if(WIN32)
     add_definitions(
@@ -113,11 +151,21 @@ target_compile_definitions(pdfium_public_config INTERFACE
     >
     $<$<BOOL:${PDF_USE_WIN32_GDI}>:PDFIUM_PRINT_TEXT_WITH_GDI>
 )
+# add_library(pdfium_thirdparty_skia_shared OBJECT EXCLUDE_FROM_ALL
+#    "${PDFIUM_ROOT}/skia/config/SkPdfiumUserConfig.h"
+# )
+# add_library(pdfium::thirdparty_skia_shared ALIAS pdfium_thirdparty_skia_shared)
+# target_link_libraries(pdfium_thirdparty_skia_shared
+#    PRIVATE
+#        pdfium::strict_config
+# )
 
 add_library(pdfium_common_config INTERFACE)
 add_library(pdfium::common_config ALIAS pdfium_common_config)
 target_include_directories(pdfium_common_config INTERFACE
     "${PDFIUM_ROOT}"
+    "${PDFIUM_ROOT}/build"
+
 )
 target_compile_definitions(pdfium_common_config INTERFACE
     PNG_PREFIX
@@ -151,6 +199,7 @@ target_compile_options(pdfium_core_config INTERFACE
         /wd4324
         /wd4577
     >
+     $<$<BOOL:${UNIX}>:-Wno-return-type>
 )
 
 add_library(pdfium_strict_config INTERFACE)
@@ -186,7 +235,8 @@ target_link_libraries(pdfium
         pdfium::fpdfsdk_formfiller
         pdfium::fxjs
         pdfium::thirdparty_pdfium_base
-        pdfium::thirdparty_skia_shared
+        pdfium::thirdparty_absl
+        # pdfium::thirdparty_skia_shared
     PRIVATE
         pdfium::core_fxcrt
     PRIVATE

@@ -15,7 +15,7 @@ target_link_libraries(pdfium_core_fpdfapi_edit
     PRIVATE
         pdfium::strict_config
     PUBLIC
-        pdfium::thirdparty_skia_shared
+        # pdfium::thirdparty_skia_shared
         pdfium::core_fxcrt
         pdfium::core_fpdfapi_font
         pdfium::core_fpdfapi_page

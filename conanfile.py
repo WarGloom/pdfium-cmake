@@ -1,8 +1,7 @@
 from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
 import os
-import shutil
 import textwrap
+import shutil
 
 required_conan_version = ">=1.33.0"
 
@@ -57,14 +56,6 @@ class PdfiumConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, 14)
-        minimum_compiler_versions = {
-            "gcc": 8,
-            "Visual Studio": 15,
-        }
-        min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
-        if min_compiler_version:
-            if tools.Version(self.settings.compiler.version) < min_compiler_version:
-                raise ConanInvalidConfiguration("pdfium needs at least compiler version {}".format(min_compiler_version))
 
     def export_sources(self):
         shutil.copytree("pdfium", os.path.join(self.export_sources_folder, "pdfium"))
@@ -95,9 +86,3 @@ class PdfiumConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["pdfium"]
-        if tools.is_apple_os(self.settings.os):
-            self.cpp_info.frameworks.extend(["Appkit", "CoreFoundation", "CoreGraphics"])
-
-        stdcpp_library = tools.stdcpp_library(self)
-        if stdcpp_library:
-            self.cpp_info.system_libs.append(stdcpp_library)
