@@ -78,6 +78,7 @@ function (find_sources folder )
         list (REMOVE_ITEM _sources ${win_platform_sources})
     endif()
     list(APPEND _SOURCES ${_sources})
+    # cmake_path(CONVERT "${_SOURCES}" TO_NATIVE_PATH_LIST _SOURCES)
     return(PROPAGATE _SOURCES posix_platform_sources win_platform_sources) 
 endfunction()
 
