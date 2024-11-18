@@ -14,6 +14,7 @@ endif()
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LINUX ON)
 endif()
+
 if(ANDROID OR APPLE OR CHROMEOS OR LINUX)
     set(POSIX ON)
 endif()
@@ -41,48 +42,53 @@ include("${CMAKE_CURRENT_LIST_DIR}/patch_sources.cmake")
 if(BUILD_SHARED_LIBS)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
+
 add_definitions(-DFPDF_IMPLEMENTATION -DCOMPONENT_BUILD)
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-function (find_sources folder )
-    file(GLOB _sources 
-    ${PDFIUM_ROOT}/${folder}/*.h
-    ${PDFIUM_ROOT}/${folder}/*.cpp
+function(find_sources folder)
+    file(GLOB _sources
+        ${PDFIUM_ROOT}/${folder}/*.h
+        ${PDFIUM_ROOT}/${folder}/*.cpp
     )
 
     file(GLOB posix_platform_sources ${PDFIUM_ROOT}/${folder}/*posix*)
     file(GLOB win_platform_sources ${PDFIUM_ROOT}/${folder}/*win*)
-    file(GLOB test_sources 
-#  ${PDFIUM_ROOT}/${folder}/*test*
-    ${PDFIUM_ROOT}/${folder}/*unittest*
-    ${PDFIUM_ROOT}/${folder}/test_*
-    ${PDFIUM_ROOT}/${folder}/*test.cpp
+    file(GLOB test_sources
+
+        # ${PDFIUM_ROOT}/${folder}/*test*
+        ${PDFIUM_ROOT}/${folder}/*unittest*
+        ${PDFIUM_ROOT}/${folder}/test_*
+        ${PDFIUM_ROOT}/${folder}/*test.cpp
     )
-    if (ARGC GREATER 1)
-    set (not_exclude ${ARGV1})
-    foreach(n ${not_exclude})
-        # message(FATAL_ERROR ${n})
-        list(FILTER posix_platform_sources EXCLUDE REGEX ${n})
-        list(FILTER win_platform_sources EXCLUDE REGEX ${n})
-        list(FILTER test_platform_sources EXCLUDE REGEX ${n})
-    endforeach()
+
+    if(ARGC GREATER 1)
+        set(not_exclude ${ARGV1})
+
+        foreach(n ${not_exclude})
+            # message(FATAL_ERROR ${n})
+            list(FILTER posix_platform_sources EXCLUDE REGEX ${n})
+            list(FILTER win_platform_sources EXCLUDE REGEX ${n})
+            list(FILTER test_platform_sources EXCLUDE REGEX ${n})
+        endforeach()
     endif()
 
     list(REMOVE_ITEM _sources
         ${test_sources})
+
     if(WIN32)
-        list (REMOVE_ITEM _sources ${posix_platform_sources})
+        list(REMOVE_ITEM _sources ${posix_platform_sources})
     elseif(UNIX)
-        list (REMOVE_ITEM _sources ${win_platform_sources})
+        list(REMOVE_ITEM _sources ${win_platform_sources})
     endif()
+
     list(APPEND _SOURCES ${_sources})
+
     # cmake_path(CONVERT "${_SOURCES}" TO_NATIVE_PATH_LIST _SOURCES)
-    return(PROPAGATE _SOURCES posix_platform_sources win_platform_sources) 
+    return(PROPAGATE _SOURCES posix_platform_sources win_platform_sources)
 endfunction()
-
-
 
 if(WIN32)
     add_definitions(
@@ -91,6 +97,7 @@ if(WIN32)
         -DNOMINMAX
     )
 endif()
+
 if(MSVC)
     add_compile_options(
         /wd4324
@@ -123,6 +130,8 @@ set(pdfium_public_headers_impl
     "${PDFIUM_ROOT}/public/fpdf_transformpage.h"
     "${PDFIUM_ROOT}/public/fpdfview.h"
 )
+file(GLOB_RECURSE pdfium_public_headers_impl_ ${PDFIUM_ROOT}/core/*.h)
+# list(APPEND pdfium_public_headers_impl ${pdfium_public_headers_impl_})
 
 add_library(pdfium_public_headers INTERFACE)
 add_library(pdfium::public_headers ALIAS pdfium_public_headers)
@@ -141,32 +150,31 @@ add_library(pdfium_public_config INTERFACE)
 add_library(pdfium::public_config ALIAS pdfium_public_config)
 target_compile_definitions(pdfium_public_config INTERFACE
     $<$<BOOL:${PDF_ENABLE_V8}>:
-        PDF_ENABLE_V8
-        $<$<BOOL:${PDF_ENABLE_XFA}>:
-            PDF_ENABLE_XFA
-            $<$<BOOL:${PDF_ENABLE_XFA_BMP}>:PDF_ENABLE_XFA_BMP>
-            $<$<BOOL:${PDF_ENABLE_XFA_GIF}>:PDF_ENABLE_XFA_GIF>
-            $<$<BOOL:${PDF_ENABLE_XFA_PNG}>:PDF_ENABLE_XFA_PNG>
-            $<$<BOOL:${PDF_ENABLE_XFA_TIFF}>:PDF_ENABLE_XFA_TIFF>
-        >
+    PDF_ENABLE_V8
+    $<$<BOOL:${PDF_ENABLE_XFA}>:
+    PDF_ENABLE_XFA
+    $<$<BOOL:${PDF_ENABLE_XFA_BMP}>:PDF_ENABLE_XFA_BMP>
+    $<$<BOOL:${PDF_ENABLE_XFA_GIF}>:PDF_ENABLE_XFA_GIF>
+    $<$<BOOL:${PDF_ENABLE_XFA_PNG}>:PDF_ENABLE_XFA_PNG>
+    $<$<BOOL:${PDF_ENABLE_XFA_TIFF}>:PDF_ENABLE_XFA_TIFF>
+    >
     >
     $<$<BOOL:${PDF_USE_WIN32_GDI}>:PDFIUM_PRINT_TEXT_WITH_GDI>
 )
+
 # add_library(pdfium_thirdparty_skia_shared OBJECT EXCLUDE_FROM_ALL
-#    "${PDFIUM_ROOT}/skia/config/SkPdfiumUserConfig.h"
+# "${PDFIUM_ROOT}/skia/config/SkPdfiumUserConfig.h"
 # )
 # add_library(pdfium::thirdparty_skia_shared ALIAS pdfium_thirdparty_skia_shared)
 # target_link_libraries(pdfium_thirdparty_skia_shared
-#    PRIVATE
-#        pdfium::strict_config
+# PRIVATE
+# pdfium::strict_config
 # )
-
 add_library(pdfium_common_config INTERFACE)
 add_library(pdfium::common_config ALIAS pdfium_common_config)
 target_include_directories(pdfium_common_config INTERFACE
     "${PDFIUM_ROOT}"
     "${PDFIUM_ROOT}/build"
-
 )
 target_compile_definitions(pdfium_common_config INTERFACE
     PNG_PREFIX
@@ -177,14 +185,15 @@ target_compile_definitions(pdfium_common_config INTERFACE
 )
 target_compile_options(pdfium_common_config INTERFACE
     $<$<BOOL:${MSVC}>:/utf-8
-        /wd4324
-        /wd4577
+    /wd4324
+    /wd4577
     >
-    #$<$<CXX_COMPILER_ID:Clang>:
-    #    -Wc++-narrowing
-    #    -Wdeprecated-copy
+
+    # $<$<CXX_COMPILER_ID:Clang>:
+    # -Wc++-narrowing
+    # -Wdeprecated-copy
     #
-    #>
+    # >
 )
 
 add_library(pdfium_core_config INTERFACE)
@@ -192,21 +201,23 @@ add_library(pdfium::core_config ALIAS pdfium_core_config)
 target_link_libraries(pdfium_core_config INTERFACE
     pdfium::common_config
     pdfium::public_config
+
     # noshadowing
     # no_size_t_to_int_warning
 )
 target_compile_options(pdfium_core_config INTERFACE
     $<$<BOOL:${MSVC}>:
-        /wd4324
-        /wd4577
+    /wd4324
+    /wd4577
     >
-     $<$<BOOL:${UNIX}>:-Wno-return-type>
+    $<$<BOOL:${UNIX}>:-Wno-return-type>
 )
 
 add_library(pdfium_strict_config INTERFACE)
 add_library(pdfium::strict_config ALIAS pdfium_strict_config)
 target_link_libraries(pdfium_strict_config INTERFACE
     pdfium::core_config
+
     # wexit_time_destructors
     # wglobal_constructors
 )
@@ -217,65 +228,74 @@ add_library(pdfium
 add_library(pdfium::pdfium ALIAS pdfium)
 target_include_directories(pdfium
     INTERFACE
-        "$<BUILD_INTERFACE:${PDFIUM_ROOT}/public>"
-        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+    "$<BUILD_INTERFACE:${PDFIUM_ROOT}/public>"
+    "${pdfium_public_headers_impl_}"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 target_link_libraries(pdfium
     PRIVATE
-        pdfium::strict_config
+    pdfium::strict_config
     PRIVATE
-        pdfium::public_config
+    pdfium::public_config
     PRIVATE
-        pdfium::constants
-        pdfium::core_fpdfapi_page
-        pdfium::core_fpdfapi_parser
-        pdfium::core_fpdfdoc
-        pdfium::core_fxcodec
-        pdfium::core_fxge
-        pdfium::fpdfsdk
-        pdfium::fpdfsdk_formfiller
-        pdfium::fxjs
-        pdfium::thirdparty_pdfium_base
-        pdfium::thirdparty_absl
-        # pdfium::thirdparty_skia_shared
+    pdfium::constants
+    pdfium::core_fpdfapi_page
+    pdfium::core_fpdfapi_parser
+    pdfium::core_fpdfdoc
+    pdfium::core_fxcodec
+    pdfium::core_fxge
+    pdfium::fpdfsdk
+    pdfium::fpdfsdk_formfiller
+    pdfium::fxjs
+    pdfium::thirdparty_pdfium_base
+    pdfium::thirdparty_absl
+
+    # pdfium::thirdparty_skia_shared
     PRIVATE
-        pdfium::core_fxcrt
+    pdfium::core_fxcrt
     PRIVATE
-        pdfium::common_config
+    pdfium::common_config
     PRIVATE
-        # FIXME: https://gitlab.kitware.com/cmake/cmake/-/issues/18090
-        pdfium::fpdfsdk_pwl
-        pdfium::core_fdrm
-        pdfium::core_fpdfapi_cmaps
-        pdfium::core_fpdfapi_edit
-        pdfium::core_fpdfapi_font
-        pdfium::core_fpdfapi_render
-        pdfium::core_fpdftext
-        pdfium::thirdparty_fx_agg
+
+    # FIXME: https://gitlab.kitware.com/cmake/cmake/-/issues/18090
+    pdfium::fpdfsdk_pwl
+    pdfium::core_fdrm
+    pdfium::core_fpdfapi_cmaps
+    pdfium::core_fpdfapi_edit
+    pdfium::core_fpdfapi_font
+    pdfium::core_fpdfapi_render
+    pdfium::core_fpdftext
+    pdfium::thirdparty_fx_agg
 )
+
 if(PDF_ENABLE_XFA)
     target_link_libraries(pdfium
         PRIVATE
-            pdfium::fpdfsdk_fpdfxfa
-            pdfium::xfa_xfa
-            pdfium::xfa_parser
+        pdfium::fpdfsdk_fpdfxfa
+        pdfium::xfa_xfa
+        pdfium::xfa_parser
     )
 endif()
+
 if(WIN32)
     target_link_libraries(pdfium
         PRIVATE
-            advapi32
-            gdi32
-            user32
+        advapi32
+        gdi32
+        user32
     )
 endif()
+
 if(APPLE)
     target_link_libraries(pdfium
         PRIVATE
-            "-framework AppKit"
-            "-framework CoreFoundation"
+        "-framework AppKit"
+        "-framework CoreFoundation"
     )
 endif()
+
+message(STATUS "pdfium_public_headers_impl: ${pdfium_public_headers_impl}")
+
 set_target_properties(pdfium PROPERTIES
     EXPORT_NAME "Pdfium"
     PUBLIC_HEADER "${pdfium_public_headers_impl}"
@@ -293,4 +313,9 @@ install(TARGETS pdfium EXPORT pdfiumTargets
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
-
+install(
+    DIRECTORY "${PDFIUM_ROOT}/"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    FILES_MATCHING
+    PATTERN "*.h"
+)
