@@ -4,7 +4,7 @@ add_library(pdfium_thirdparty INTERFACE)
 add_library(pdfium::thirdparty ALIAS pdfium_thirdparty)
 target_link_libraries(pdfium_thirdparty
     INTERFACE
-        pdfium::thirdparty_pdfium_base
+        # pdfium::thirdparty_pdfium_base
         pdfium::thirdparty_skia_shared
         pdfium::thirdparty_freetype
 )
@@ -129,52 +129,52 @@ if(PDF_ENABLE_XFA_TIFF)
     target_compile_definitions(pdfium_thirdparty_tiff PUBLIC USE_SYSTEM_LIBTIFF)
 endif()
 
-add_library(pdfium_thirdparty_pdfium_base OBJECT EXCLUDE_FROM_ALL
-    "${PDFIUM_ROOT}/third_party/base/memory/aligned_memory.cc"
-    "${PDFIUM_ROOT}/third_party/base/memory/aligned_memory.h"
-    "${PDFIUM_ROOT}/third_party/base/memory/ptr_util.h"
-    "${PDFIUM_ROOT}/third_party/base/bits.h"
-    "${PDFIUM_ROOT}/third_party/base/check.h"
-    "${PDFIUM_ROOT}/third_party/base/check_op.h"
-    "${PDFIUM_ROOT}/third_party/base/compiler_specific.h"
-    "${PDFIUM_ROOT}/third_party/base/containers/adapters.h"
-    "${PDFIUM_ROOT}/third_party/base/containers/contains.h"
-    "${PDFIUM_ROOT}/third_party/base/containers/span.h"
-    "${PDFIUM_ROOT}/third_party/base/debug/alias.cc"
-    "${PDFIUM_ROOT}/third_party/base/debug/alias.h"
-    "${PDFIUM_ROOT}/third_party/base/immediate_crash.h"
-    "${PDFIUM_ROOT}/third_party/base/no_destructor.h"
-    "${PDFIUM_ROOT}/third_party/base/notreached.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/checked_math.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/checked_math_impl.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/clamped_math.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/clamped_math_impl.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_conversions.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_conversions_arm_impl.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_conversions_impl.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_math.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_math_arm_impl.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_math_clang_gcc_impl.h"
-    "${PDFIUM_ROOT}/third_party/base/numerics/safe_math_shared_impl.h"
-    # "${PDFIUM_ROOT}/third_party/base/optional.h"
-    "${PDFIUM_ROOT}/third_party/base/sys_byteorder.h"
-    "${PDFIUM_ROOT}/third_party/base/template_util.h"
-)
-add_library(pdfium::thirdparty_pdfium_base ALIAS pdfium_thirdparty_pdfium_base)
-if(WIN32)
-    target_sources(pdfium_thirdparty_pdfium_base PRIVATE
-        # "${PDFIUM_ROOT}/third_party/base/allocator/partition_allocator/page_allocator_internals_win.h"
-        "${PDFIUM_ROOT}/third_party/base/win/win_util.cc"
-        "${PDFIUM_ROOT}/third_party/base/win/win_util.h"
-    )
-endif()
-if(POSIX)
-    # target_sources(pdfium_thirdparty_pdfium_base PRIVATE
-        # "${PDFIUM_ROOT}/third_party/base/allocator/partition_allocator/page_allocator_internals_posix.h"
-    # )
-endif()
-target_link_libraries(pdfium_thirdparty_pdfium_base
-    PRIVATE
-        pdfium::thirdparty_config
-)
+# add_library(pdfium_thirdparty_pdfium_base OBJECT EXCLUDE_FROM_ALL
+#     # "${PDFIUM_ROOT}/third_party/base/memory/aligned_memory.cc"
+#     # "${PDFIUM_ROOT}/third_party/base/memory/aligned_memory.h"
+#     # "${PDFIUM_ROOT}/third_party/base/memory/ptr_util.h"
+#     # "${PDFIUM_ROOT}/third_party/base/bits.h"
+#     # "${PDFIUM_ROOT}/third_party/base/check.h"
+#     # "${PDFIUM_ROOT}/third_party/base/check_op.h"
+#     # "${PDFIUM_ROOT}/third_party/base/compiler_specific.h"
+#     # "${PDFIUM_ROOT}/third_party/base/containers/adapters.h"
+#     # "${PDFIUM_ROOT}/third_party/base/containers/contains.h"
+#     # "${PDFIUM_ROOT}/third_party/base/containers/span.h"
+#     # "${PDFIUM_ROOT}/third_party/base/debug/alias.cc"
+#     # "${PDFIUM_ROOT}/third_party/base/debug/alias.h"
+#     # "${PDFIUM_ROOT}/third_party/base/immediate_crash.h"
+#     # "${PDFIUM_ROOT}/third_party/base/no_destructor.h"
+#     # "${PDFIUM_ROOT}/third_party/base/notreached.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/checked_math.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/checked_math_impl.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/clamped_math.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/clamped_math_impl.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_conversions.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_conversions_arm_impl.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_conversions_impl.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_math.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_math_arm_impl.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_math_clang_gcc_impl.h"
+#     # "${PDFIUM_ROOT}/third_party/base/numerics/safe_math_shared_impl.h"
+#     # # "${PDFIUM_ROOT}/third_party/base/optional.h"
+#     # "${PDFIUM_ROOT}/third_party/base/sys_byteorder.h"
+#     # "${PDFIUM_ROOT}/third_party/base/template_util.h"
+# )
+# add_library(pdfium::thirdparty_pdfium_base ALIAS pdfium_thirdparty_pdfium_base)
+# if(WIN32)
+#     target_sources(pdfium_thirdparty_pdfium_base PRIVATE
+#     #     # "${PDFIUM_ROOT}/third_party/base/allocator/partition_allocator/page_allocator_internals_win.h"
+#     #     "${PDFIUM_ROOT}/third_party/base/win/win_util.cc"
+#     #     "${PDFIUM_ROOT}/third_party/base/win/win_util.h"
+#     )
+# endif()
+# if(POSIX)
+#     # target_sources(pdfium_thirdparty_pdfium_base PRIVATE
+#         # "${PDFIUM_ROOT}/third_party/base/allocator/partition_allocator/page_allocator_internals_posix.h"
+#     # )
+# endif()
+# target_link_libraries(pdfium_thirdparty_pdfium_base
+#     PRIVATE
+#         pdfium::thirdparty_config
+# )
 

@@ -7,10 +7,10 @@ set(PDFIUM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../pdfium" CACHE PATH "Location of 
 include(CMakeDependentOption)
 include(GNUInstallDirs)
 
-if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
-endif()
+# if(NOT CMAKE_CXX_STANDARD)
+set(CMAKE_CXX_STANDARD 20)
 
+# endif()
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LINUX ON)
 endif()
@@ -105,6 +105,12 @@ if(MSVC)
     )
 endif()
 
+if(WIN32)
+    add_definitions(-DWCHAR_T_IS_16_BIT)
+else()
+    add_definitions(-DWCHAR_T_IS_32_BIT)
+endif()
+
 set(pdfium_public_headers_impl
     "${PDFIUM_ROOT}/public/cpp/fpdf_deleters.h"
     "${PDFIUM_ROOT}/public/cpp/fpdf_scopers.h"
@@ -131,8 +137,8 @@ set(pdfium_public_headers_impl
     "${PDFIUM_ROOT}/public/fpdfview.h"
 )
 file(GLOB_RECURSE pdfium_public_headers_impl_ ${PDFIUM_ROOT}/core/*.h)
-# list(APPEND pdfium_public_headers_impl ${pdfium_public_headers_impl_})
 
+# list(APPEND pdfium_public_headers_impl ${pdfium_public_headers_impl_})
 add_library(pdfium_public_headers INTERFACE)
 add_library(pdfium::public_headers ALIAS pdfium_public_headers)
 target_link_libraries(pdfium_public_headers INTERFACE
@@ -247,7 +253,8 @@ target_link_libraries(pdfium
     pdfium::fpdfsdk
     pdfium::fpdfsdk_formfiller
     pdfium::fxjs
-    pdfium::thirdparty_pdfium_base
+
+    # pdfium::thirdparty_pdfium_base
     pdfium::thirdparty_absl
 
     # pdfium::thirdparty_skia_shared
