@@ -52,7 +52,7 @@ add_library(pdfium_core_fxcodec OBJECT EXCLUDE_FROM_ALL
     "${PDFIUM_ROOT}/${_folder}/jbig2/JBig2_TrdProc.h"
     "${PDFIUM_ROOT}/${_folder}/jbig2/jbig2_decoder.cpp"
     "${PDFIUM_ROOT}/${_folder}/jbig2/jbig2_decoder.h"
-    "${PDFIUM_ROOT}/${_folder}/jpeg/jpeg_common.cpp"
+    "${PDFIUM_ROOT}/${_folder}/jpeg/jpeg_common.c"
     "${PDFIUM_ROOT}/${_folder}/jpeg/jpeg_common.h"
     "${PDFIUM_ROOT}/${_folder}/jpeg/jpegmodule.cpp"
     "${PDFIUM_ROOT}/${_folder}/jpeg/jpegmodule.h"
